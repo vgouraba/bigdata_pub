@@ -1,0 +1,72 @@
+Steps
+Step 1.  Open Eclipse > File > New > Java Project >( Name it – WordCountDemo) > Finish.
+Step 2.  Right Click > New > Package ( Name it - PackageDemo) > Finish.
+Step 3. Right Click on Package > New > Class (Name it - WordCount).
+Step 4. Add Following Reference Libraries –
+Right Click on Project > Build Path> Add External Jars
+/usr/lib/hadoop-0.20/hadoop-core.jar
+Usr/lib/hadoop-0.20/lib/Commons-cli-1.2.jar
+Step 5. Complete WordCount.java (get the code from google).
+Step 6. Make Jar File.
+Right Click on Project> Export> Select export destination as Jar File  > next> Finish
+Step 7. Copy the jar to VM.
+C:\Users\xyz\Desktop>scp wc9.jar ubuntu@110.110.112.247:.
+ubuntu@110.110.112.247's password:
+wc9.jar
+
+Step 8. Login to VM, check and copy the same jar to Cloudera  Docker container.
+Last login: Thu Mar 16 05:43:42 2017 from 55.55.55.218
+ubuntu@hadooppractices-machine:~$ ls
+hadoop_tutorial  sampleWC  vox-logs  wc9.jar
+ubuntu@hadooppractices-machine:~/sampleWC$ mv ../wc9.jar .
+ubuntu@hadooppractices-machine:~/sampleWC$ ls
+wc9.jar
+
+ubuntu@hadooppractices-machine:~$ sudo docker ps -a
+CONTAINER ID        IMAGE                 COMMAND                CREATED             STATUS              PORTS               NAMES
+3cb74bf6923c        2cda82941cb7:latest   "/usr/bin/docker-qui   3 days ago          Up 2 days                               nostalgic_poitras
+
+
+ubuntu@hadooppractices-machine:~/sampleWC$ tar -cv * | sudo docker exec -i nostalgic_poitras tar x -C /
+wc9.jar
+
+
+Step 9. Create Input file and Copy it to Hadoop 
+[root@quickstart /]# echo "Bus, Car, bus,  car, train, car, bus, car, train, bus, TRAIN,BUS, buS, caR, CAR, car, BUS, TRAIN" > wordCountFile
+[root@quickstart /]# cat wordCountFile
+Bus, Car, bus,  car, train, car, bus, car, train, bus, TRAIN,BUS, buS, caR, CAR, car, BUS, TRAIN
+
+[root@quickstart /]# hadoop fs -put wordCountFile /user/root/
+
+[root@quickstart /]# hadoop fs -ls wordCountFile /user/root/
+-rw-r--r--   1 root supergroup         97 2017-03-16 12:04 wordCountFile
+Found 1 items
+-rw-r--r--   1 root supergroup         97 2017-03-16 12:04 /user/root/wordCountFile
+
+
+Step 10. Run the jar. 
+[root@quickstart /]# sudo hadoop jar wc9.jar com.test.WordCount wordCountFile MRDir1
+
+Step 11. Check the resulted output. 
+[root@quickstart /]# hadoop fs -ls MRDir1
+Found 2 items
+-rw-r--r--   1 root supergroup          0 2017-03-16 12:05 MRDir1/_SUCCESS
+-rw-r--r--   1 root supergroup         20 2017-03-16 12:05 MRDir1/part-r-00000
+
+[root@quickstart /]# hadoop fs -cat MRDir1/part-r-00000
+BUS     7
+CAR     7
+TRAIN   4
+
+
+Possible errors:
+[root@quickstart /]# sudo hadoop jar wc1.jar com.test.WordCount wordCountFile MRDir1
+Exception in thread "main" java.lang.UnsupportedClassVersionError: com/test/WordCount : Unsupported major.minor version 52.0
+
+This error is about java versions mismatch.
+The wc1.jar compiled and built on java 8.
+The java version in docker container is 7.
+
+I fixed the error by installing java 7 on local and built the jar.
+
+Source: https://dzone.com/articles/word-count-hello-word-program-in-mapreduce
