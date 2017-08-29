@@ -3,7 +3,7 @@ from pyspark import SparkConf
 from pyspark import SparkContext
 from pyspark import SQLContext
 from pyspark.sql import Row
-from pyspark.sql.types import StructType, StructField, IntegerType, StringType
+from pyspark.sql.types import StructType, StructField, IntegerType, StringType, DateType
 
 HDFS_MASTER = 'quickstart.cloudera'
 
@@ -16,14 +16,15 @@ sc = SparkContext(conf=conf)
 
 schema = StructType([ \
            StructField("emp_no", IntegerType(), True), \
-           StructField("bdate", StringType(), True), \
+           StructField("birthdate", DateType(), True), \
            StructField("fname", StringType(), True), \
            StructField("lname", StringType(), True), \
            StructField("gender", StringType(), True), \
-           StructField("hiredate", StringType(), True) ])
+           StructField("hiredate", DateType(), True) ])
 
 sqlContext = SQLContext(sc)
 df = sqlContext.read.format("com.databricks.spark.csv").option("delimeter",",").option("header","false").option("inferSchema","true").load("hdfs://quickstart.cloudera:8020/home/cloudera/sqoop-import/employees/part-m-*", schema=schema)
+df.printSchema()
 df.show(5)
 
 print "Done"
