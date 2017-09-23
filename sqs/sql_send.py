@@ -20,4 +20,4 @@ sqs = boto3.client('sqs')
 queue = listQueues(sqs)
 print(queue['QueueUrls'])
 
-putMessage(sqs, 'https://us-west-2.queue.amazonaws.com/097884913175/bdt_daily')
+putMessage(sqs, 'https://us-west-2.queue.amazonaws.com/xxx/bdt_daily')
