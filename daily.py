@@ -1,4 +1,4 @@
- cluster-spark-wordcount.py
+# cluster-spark-wordcount.py
 from pyspark import SparkConf
 from pyspark import SparkContext
 from pyspark import SQLContext
@@ -15,7 +15,14 @@ conf.setMaster('yarn-client')
 conf.setAppName('spark-wordcount')
 conf.set('spark.executor.instances', 10)
 sc = SparkContext(conf=conf)
-#sc2 = new SQLContext(sc);
+#sc2 = new SQLContext(sc); 
+
+def dfSave(df2):
+  "This is a function to save the DF"
+  df2.show()
+  #df2.rdd.saveAsTextFile("/home/cloudera/vg");
+  #df2.write.format("csv").save("/home/cloudera/vg/df.csv");
+  df2.repartition(1).write.format("csv").save("/home/cloudera/vg/df.csv");
 
 schema = StructType([ \
            StructField("date", StringType(), True), \
@@ -40,11 +47,11 @@ df.show(5)
 #sqlContext.sql("SELECT count(*) as maleRows from tempTable where gender = 'M'").show()
 #sqlContext.sql("SELECT count(*) as femaleRows from tempTable where gender = 'F'").show()
 
-window = Window.partitionBy('ticker').orderBy('date').rowsBetween(-1, 1)
+window = Window.partitionBy('ticker').orderBy('date').rowsBetween(-1, 0)
 #window
 moving_avg = mean(df['close']).over(window)
 moving_avg
 df2 = df.withColumn('moving_avg', moving_avg)
-df2.show()
+dfSave(df2)
 
 print "Done"
