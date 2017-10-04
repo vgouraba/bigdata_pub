@@ -46,8 +46,8 @@ sqs = boto3.client('sqs')
 queue = listQueues(sqs)
 print(queue['QueueUrls'])
 
-#getQueue(sqs, 'https://us-west-2.queue.amazonaws.com/097884913175/bdt_daily')
-getMessage(sqs, 'https://us-west-2.queue.amazonaws.com/097884913175/bdt_daily')
+#getQueue(sqs, 'https://us-west-2.queue.amazonaws.com/bdt/bdt_daily')
+getMessage(sqs, 'https://us-west-2.queue.amazonaws.com/bdt/bdt_daily')
 
 # If we come here mean...we can process Spark
 print "Process Spark"
