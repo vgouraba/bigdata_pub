@@ -12,7 +12,7 @@ conf.setMaster('yarn-client')
 conf.setAppName('spark-wordcount')
 conf.set('spark.executor.instances', 10)
 sc = SparkContext(conf=conf)
-#sc2 = new SQLContext(sc);
+#sc2 = new SQLContext(sc); 
 
 schema = StructType([ \
            StructField("emp_no", IntegerType(), True), \
@@ -26,6 +26,12 @@ sqlContext = SQLContext(sc)
 df = sqlContext.read.format("com.databricks.spark.csv").option("delimeter",",").option("header","false").option("inferSchema","true").load("hdfs://quickstart.cloudera:8020/home/cloudera/sqoop-import/employees/part-m-*", schema=schema)
 df.printSchema()
 df.show(5)
-
-print "Done"
 df.select("fname").show(5)
+
+df.registerTempTable("tempTable")
+#sqlContext.sql("SELECT emp_no,gender from tempTable").show()
+sqlContext.sql("SELECT count(*) as totalRows from tempTable").show()
+sqlContext.sql("SELECT count(*) as maleRows from tempTable where gender = 'M'").show()
+sqlContext.sql("SELECT count(*) as femaleRows from tempTable where gender = 'F'").show()
+           
+print "Done"
